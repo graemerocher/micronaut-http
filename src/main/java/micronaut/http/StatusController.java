@@ -4,6 +4,7 @@ import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Get;
 import io.micronaut.security.annotation.Secured;
 import io.micronaut.security.rules.SecurityRule;
+import io.reactivex.Single;
 
 import javax.inject.Inject;
 
@@ -18,7 +19,7 @@ public class StatusController {
     }
 
     @Get("/status")
-    String status() {
-        return requestValidator.isValid("requestId") ? "valid" : "invalid";
+    Single<String> status() {
+        return requestValidator.isValid("requestId").map(b -> b ? "valid" : "invalid") ;
     }
 }

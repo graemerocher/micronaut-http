@@ -1,7 +1,11 @@
 package micronaut.http;
 
 import io.micronaut.context.annotation.Requires;
+import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;
+import io.reactivex.Single;
+import io.reactivex.annotations.NonNull;
+import io.reactivex.functions.Function;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -17,8 +21,8 @@ public class RequestValidator {
         this.serviceClient = serviceClient;
     }
 
-    public boolean isValid(final String id) {
-        return serviceClient.getDetails(id).getStatus().equals(HttpStatus.OK);
+    public Single<Boolean> isValid(final String id) {
+        return serviceClient.getDetails(id).map(httpResponse -> httpResponse.getStatus().equals(HttpStatus.OK));
     }
 
 }

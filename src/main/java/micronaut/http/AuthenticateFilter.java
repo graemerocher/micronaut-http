@@ -5,6 +5,8 @@ import io.micronaut.http.MutableHttpRequest;
 import io.micronaut.http.annotation.Filter;
 import io.micronaut.http.filter.ClientFilterChain;
 import io.micronaut.http.filter.HttpClientFilter;
+import io.reactivex.annotations.NonNull;
+import io.reactivex.functions.Function;
 import org.reactivestreams.Publisher;
 
 import javax.inject.Inject;
@@ -21,6 +23,9 @@ public class AuthenticateFilter implements HttpClientFilter {
 
     @Override
     public Publisher<? extends HttpResponse<?>> doFilter(MutableHttpRequest<?> request, ClientFilterChain chain) {
-        return chain.proceed(request.bearerAuth(tokenIssuer.retrieveToken().getAccessToken()));
+        return tokenIssuer.retrieveToken().flatMapPublisher(token ->
+                chain.proceed(request.bearerAuth(token.getAccessToken()))
+        );
+
     }
 }

@@ -9,18 +9,19 @@ import io.micronaut.security.token.validator.TokenValidator;
 import org.reactivestreams.Publisher;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
 import javax.inject.Singleton;
 
 @Singleton
 public class AuthValidator implements TokenValidator {
 
-    private AuthClient authClient;
+    private Provider<AuthClient> authClient;
 
     private String clientId;
 
     @Inject
-    public AuthValidator(AuthClient authClient,
-                         @Value("${client.id}") String clientId) {
+    public AuthValidator(Provider<AuthClient> authClient,
+                         @Value("${client.id:default}") String clientId) {
         this.authClient = authClient;
         this.clientId = clientId;
     }
@@ -29,6 +30,7 @@ public class AuthValidator implements TokenValidator {
     @SingleResult
     public Publisher<Authentication> validateToken(String token) {
         return authClient
+                .get()
                 .validateToken(new ValidateTokenRequest(token), clientId)
                 .filter(ValidateTokenResponse::isTokenValid)
                 .map(ValidateTokenResponse::asAuthentication)
